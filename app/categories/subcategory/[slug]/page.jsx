@@ -1,24 +1,25 @@
 'use client';
 
 import React from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from 'react-hot-toast';
+import { useParams } from 'next/navigation';
+import { useSubCategory } from '@/hooks/useSubCategory';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Table, TableHead, TableRow, TableHeader, TableCell, TableBody } from '@/components/ui/table';
 import Loading from '@/components/Shared/Loading/Loading';
-import { useCategory } from '@/hooks/useCategory';
-import { Pencil, Trash, Eye } from "lucide-react";
-import Link from 'next/link';
-export default function CategoryPage() {
-  const { data, isLoading, isError } = useCategory();
+import { toast } from 'react-hot-toast';
+import { Pencil, Trash } from "lucide-react";
+export default function SubCategoryPage() {
+  const { slug } = useParams();
+  const { data, isLoading, isError } = useSubCategory(slug);
 
   if (isError) {
-    toast.error('Failed to load categories');
+    toast.error('Failed to load subcategories');
   }
 
   return (
-    <Card className=" mx-auto mt-10 shadow-md">
+    <Card className="mx-auto mt-10 shadow-md">
       <CardHeader>
-        <CardTitle className="text-xl font-bold">Categories</CardTitle>
+        <CardTitle className="text-xl font-bold">SubCategories</CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -31,21 +32,17 @@ export default function CategoryPage() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Description</TableHead>
-                <TableHead>SubCategory</TableHead>
+                <TableHead>Parent Category</TableHead>
                 <TableHead>Edit</TableHead>
                 <TableHead>Delete</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.categories.map((category) => (
-                <TableRow key={category._id}>
-                  <TableCell>{category.name}</TableCell>
-                  <TableCell>{category.description || 'No description'}</TableCell>
-                  <TableCell>
-                    <Link href={`/categories/subcategory/${category._id}`} className='cursor-pointer'>
-                    view subcategories <Eye className="h-5 w-5 inline-block ml-2" />
-                    </Link>
-                  </TableCell>
+              {data?.subcategories?.map((sub) => (
+                <TableRow key={sub._id}>
+                  <TableCell>{sub.name}</TableCell>
+                  <TableCell>{sub.description || 'No description'}</TableCell>
+                  <TableCell>{sub.category?.name}</TableCell>
                   <TableCell>
                     <button className="text-blue-500 hover:underline">
                       <Pencil className="h-5 w-5" />

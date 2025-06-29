@@ -7,6 +7,7 @@ import { Spectral } from 'next/font/google';
 import "./globals.css";
 import Providers from "./provider";
 import { Toaster } from 'react-hot-toast';
+import ProtectedRoute from '@/components/protectedRoutes';
 
 const spectral = Spectral({
   subsets: ['latin'],
@@ -30,9 +31,11 @@ export default function RootLayout({ children }) {
 
           <Providers>
             {!isLogin && <SidebarTrigger />}
-            <main className="lg:py-8 px-4 py-6 h-full overflow-auto w-full">
-              {children}
-            </main>
+            <ProtectedRoute>
+              <main className="lg:py-8 px-4 py-6 h-full overflow-auto w-full">
+                {children}
+              </main>
+            </ProtectedRoute>
             <Toaster position="top-center" />
           </Providers>
         </SidebarProvider>

@@ -9,15 +9,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash, Eye } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Trash, Eye } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+import Cookies from "js-cookie";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
 
@@ -28,6 +25,28 @@ export default function ProductsTable({
   onPageChange,
 }) {
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [productToDelete, setProductToDelete] = useState(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const handleDelete = async () => {
+    if (!productToDelete?._id) return;
+
+    try {
+      const token = Cookies.get("token");
+      await axios.delete(`${baseUrl}/api/product/${productToDelete._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      toast.success("Product deleted successfully");
+      setShowDeleteDialog(false);
+      setProductToDelete(null);
+      onPageChange(page); // refetch current page
+      window.location.reload();
+    } catch (err) {
+      toast.error("Failed to delete product");
+    }
+  };
 
   return (
     <div className="w-full border rounded-md overflow-x-auto">
@@ -46,7 +65,7 @@ export default function ProductsTable({
             <TableHead>Category</TableHead>
             <TableHead>Subcategory</TableHead>
             <TableHead>View</TableHead>
-            <TableHead>Update</TableHead>
+            {/* <TableHead>Update</TableHead> */}
             <TableHead>Delete</TableHead>
           </TableRow>
         </TableHeader>
@@ -205,16 +224,45 @@ export default function ProductsTable({
                   </DialogContent>
                 </Dialog>
               </TableCell>
-              <TableCell>
+              {/* <TableCell>
                 <Pencil className="h-4 w-4 text-green-500 cursor-pointer" />
-              </TableCell>
+              </TableCell> */}
               <TableCell>
-                <Trash className="h-4 w-4 text-red-500 cursor-pointer" />
+                <Trash
+                  className="h-4 w-4 text-red-500 cursor-pointer"
+                  onClick={() => {
+                    setProductToDelete(product);
+                    setShowDeleteDialog(true);
+                  }}
+                />
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="text-center max-w-md">
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">
+            Confirm Deletion
+          </h2>
+          <p className="text-sm text-gray-600 mb-6">
+            Are you sure you want to delete{" "}
+            <strong>{productToDelete?.name}</strong>? This action cannot be
+            undone.
+          </p>
+          <div className="flex justify-center gap-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Confirm
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Pagination Controls */}
       <div className="flex justify-between items-center px-4 py-2">

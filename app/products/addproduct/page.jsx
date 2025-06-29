@@ -1,29 +1,31 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import axios from 'axios';
-import toast from 'react-hot-toast';
-import Cookies from 'js-cookie';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import React, { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import axios from "axios";
+import toast from "react-hot-toast";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useCategory } from "@/hooks/useCategory";
+import { useSubCategory } from "@/hooks/useSubCategory";
 
 export default function AddProductPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: '',
-    size: '',
-    type: 'Gold',
-    category: '',
-    subCategory: '',
-    stock: '',
-    rate: '',
-    karat: '',
-    description: '',
+    name: "",
+    size: "",
+    type: "Gold",
+    category: "",
+    subCategory: "",
+    stock: "",
+    rate: "",
+    karat: "",
+    description: "",
     isFeatured: false,
   });
 
@@ -34,10 +36,11 @@ export default function AddProductPage() {
     const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     });
   };
-
+const { data: categoryData, isLoading: loadingCategories } = useCategory();
+const { data: subCategoryData, isLoading: loadingSubCategories } = useSubCategory(formData.category);
   const handleFileChange = (e, isCover = false) => {
     const files = Array.from(e.target.files);
     if (isCover) setCoverImages(files);
@@ -48,42 +51,48 @@ export default function AddProductPage() {
     e.preventDefault();
     setLoading(true);
 
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
     const form = new FormData();
 
     Object.entries(formData).forEach(([key, value]) => {
       form.append(key, value);
     });
 
-    coverImages.forEach((file) => form.append('cover_images', file));
-    images.forEach((file) => form.append('images', file));
+    coverImages.forEach((file) => form.append("cover_images", file));
+    images.forEach((file) => form.append("images", file));
 
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/product`, form, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/product`,
+        form,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-      toast.success('Product added successfully!');
-      router.push('/products');
+      toast.success("Product added successfully!");
+      router.push("/products");
     } catch (err) {
-      toast.error('Failed to add product');
+      toast.error("Failed to add product");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto mt-8 p-6 border rounded-lg shadow-md bg-white space-y-6">
+    <div className="max-w-4xl mx-auto mt-8 p-6 border rounded-lg shadow-md bg-[#eee]  space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Add New Product</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Text fields */}
-        {['name', 'size', 'category', 'subCategory', 'stock', 'rate', 'karat'].map((field) => (
+        {["name", "size", "stock", "rate", "karat"].map((field) => (
           <div key={field}>
-            <Label htmlFor={field} className="capitalize">{field}</Label>
+            <Label htmlFor={field} className="capitalize">
+              {field}
+            </Label>
             <Input
               id={field}
               name={field}
@@ -93,6 +102,53 @@ export default function AddProductPage() {
             />
           </div>
         ))}
+        {/* Category Dropdown */}
+        <div>
+          <Label htmlFor="category">Category</Label>
+          <select
+            id="category"
+            name="category"
+            value={formData.category}
+            onChange={(e) => {
+              setFormData({
+                ...formData,
+                category: e.target.value,
+                subCategory: "",
+              });
+            }}
+            className="w-full border rounded px-3 py-2"
+            required
+          >
+            <option value="">Select Category</option>
+            {categoryData?.categories?.map((cat) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* SubCategory Dropdown */}
+        {formData.category && (
+          <div>
+            <Label htmlFor="subCategory">SubCategory</Label>
+            <select
+              id="subCategory"
+              name="subCategory"
+              value={formData.subCategory}
+              onChange={handleInputChange}
+              className="w-full border rounded px-3 py-2"
+              required
+            >
+              <option value="">Select SubCategory</option>
+              {subCategoryData?.subcategories?.map((sub) => (
+                <option key={sub._id} value={sub._id}>
+                  {sub.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Description */}
         <div>
@@ -167,7 +223,7 @@ export default function AddProductPage() {
         </div>
 
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? 'Submitting...' : 'Add Product'}
+          {loading ? "Submitting..." : "Add Product"}
         </Button>
       </form>
     </div>

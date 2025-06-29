@@ -14,7 +14,14 @@ import {
   Legend,
 } from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 export default function OrderInsightsChart() {
   const [data, setData] = useState(null);
@@ -30,7 +37,18 @@ export default function OrderInsightsChart() {
         },
       })
       .then((res) => {
-        setData(res.data);
+        const monthlyData = res.data?.insights?.monthlyData || [];
+
+        const labels = monthlyData.map((item) => item._id);
+        const orderCounts = monthlyData.map((item) => item.totalOrders);
+        const revenueSums = monthlyData.map((item) => item.totalRevenue);
+
+        setData({
+          labels,
+          orders: orderCounts,
+          revenues: revenueSums,
+        });
+
         setLoading(false);
       })
       .catch((err) => {
@@ -42,12 +60,18 @@ export default function OrderInsightsChart() {
   if (loading) return <div className="text-gray-500">Loading insights...</div>;
 
   const chartData = {
-    labels: data?.months || [],
+    labels: data?.labels || [],
     datasets: [
       {
-        label: "Orders per Month",
-        data: data?.counts || [],
-        backgroundColor: "rgba(255, 206, 86, 0.7)",
+        label: "Total Orders",
+        data: data?.orders || [],
+        backgroundColor: "rgba(255, 159, 64, 0.7)",
+        borderRadius: 6,
+      },
+      {
+        label: "Total Revenue ($)",
+        data: data?.revenues || [],
+        backgroundColor: "rgba(75, 192, 192, 0.7)",
         borderRadius: 6,
       },
     ],
@@ -69,6 +93,17 @@ export default function OrderInsightsChart() {
   return (
     <div className="mt-12">
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Order Insights</h2>
+      <p className="text-gray-600 mb-4">
+        This chart shows the number of orders placed each month, helping you
+        track trends and seasonal patterns.
+      </p>
+      <h3 className="mb-2 font-medium text-gray-700">
+        Latest Month Revenue: $
+        {data?.revenues?.[data.revenues.length - 1]?.toFixed(2) || 0}
+      </h3>
+      <h3 className="mb-2 font-medium text-gray-700">
+        The paid Orders Count of the last month {data?.orders?.[data.orders.length - 1] || 0} orders.
+      </h3>
       <div className="bg-white rounded-xl shadow p-4">
         <Bar options={options} data={chartData} />
       </div>

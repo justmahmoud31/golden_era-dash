@@ -1,12 +1,13 @@
 import api from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 
-export const useProducts = (page) => {
+export const useSubCategory = (id) => {
   return useQuery({
-    queryKey: ['products'],
+    queryKey: ['subcategory', id],
     queryFn: async () => {
-      const response = await api.get(`/product?page=${page}`);
+      const response = await api.get(`/subcategory?category=${id}`);
       return response.data;
     },
+    enabled: !!id, 
   });
 };

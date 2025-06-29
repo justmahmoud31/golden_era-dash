@@ -59,7 +59,7 @@ export default function Home() {
     {
       label: "Add Product",
       icon: <Plus className="h-5 w-5 mr-2" />,
-      href: "/products/add",
+      href: "/products/addproduct",
     },
     {
       label: "Add Category",

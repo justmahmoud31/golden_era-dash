@@ -53,7 +53,7 @@ export function AppSidebar() {
                   const isActive = pathname === item.url;
                   return (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild className={isActive ? 'bg-neon-gold text-white font-semibold rounded-md' : ''}>
+                      <SidebarMenuButton asChild className={isActive ? 'bg-neon-gold font-semibold rounded-md' : ''}>
                         <Link href={item.url} className="flex items-center gap-3">
                           <item.icon className="h-6 w-6" />
                           <span className="text-lg">{item.title}</span>
