@@ -48,10 +48,10 @@ export default function OrdersTable() {
           {orders.map((order) => (
             <TableRow key={order._id}>
               <TableCell>
-                {order.user.firstName} {order.user.lastName}
+                {order.user?.firstName || "N/A"} {order.user?.lastName  || "N/A"}
               </TableCell>
-              <TableCell>{order.user.email}</TableCell>
-              <TableCell>{order.shippingAddress.city}</TableCell>
+              <TableCell>{order.user?.email || "N/A"}</TableCell>
+              <TableCell>{order.shippingAddress?.city || "N/A"}</TableCell>
               <TableCell>${order.totalPrice.toFixed(2)}</TableCell>
               <TableCell>
                 <span
@@ -104,12 +104,12 @@ export default function OrdersTable() {
                           {selectedOrder.user.lastName}
                         </p>
                         <p>
-                          <strong>Email:</strong> {selectedOrder.user.email}
+                          <strong>Email:</strong> {selectedOrder.user?.email || "N/A"}
                         </p>
                         <p>
                           <strong>Address:</strong>{" "}
-                          {selectedOrder.shippingAddress.street},{" "}
-                          {selectedOrder.shippingAddress.city}
+                          {selectedOrder.shippingAddress?.street || "N/A"},{" "}
+                          {selectedOrder.shippingAddress?.city || "N/A"}
                         </p>
                         <p>
                           <strong>Total:</strong> $
