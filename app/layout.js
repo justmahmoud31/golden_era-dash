@@ -32,7 +32,7 @@ export default function RootLayout({ children }) {
           <Providers>
             {!isLogin && <SidebarTrigger />}
             <ProtectedRoute>
-              <main className="lg:py-8 px-4 py-6 h-full overflow-auto w-full">
+              <main className="lg:py-8 pr-2 py-6 h-full overflow-auto w-full">
                 {children}
               </main>
             </ProtectedRoute>

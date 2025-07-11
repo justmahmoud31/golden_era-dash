@@ -64,7 +64,7 @@ export default function Home() {
     {
       label: "Add Category",
       icon: <LayoutList className="h-5 w-5 mr-2" />,
-      href: "/categories/add",
+      href: "/categories/addcategory",
     },
     {
       label: "Add Subcategory",
@@ -79,7 +79,7 @@ export default function Home() {
     {
       label: "Add Admin",
       icon: <UserPlus className="h-5 w-5 mr-2" />,
-      href: "/users/add",
+      href: "/users",
     },
   ];
 
