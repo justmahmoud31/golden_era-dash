@@ -39,6 +39,8 @@ export default function OrdersTable() {
             <TableHead>City</TableHead>
             <TableHead>Total</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>User Name</TableHead>
+            <TableHead>New Address</TableHead>
             <TableHead>Paid</TableHead>
             <TableHead>View</TableHead>
             <TableHead>Update</TableHead>
@@ -74,7 +76,12 @@ export default function OrdersTable() {
                   {order.status}
                 </span>
               </TableCell>
-
+        <TableCell>
+          {order.userName}
+        </TableCell>
+         <TableCell>
+          {order.language}
+        </TableCell>
               <TableCell>
                 <span
                   className={
