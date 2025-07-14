@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import Cookies from "js-cookie";
-
+import { Plus } from 'lucide-react';
 export default function CategoryPage() {
   const { data, isLoading, isError, refetch } = useCategory();
 
@@ -152,6 +152,9 @@ export default function CategoryPage() {
                         view subcategories{" "}
                         <Eye className="h-5 w-5 inline-block ml-2" />
                       </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Link className="bg-neon-gold text-white flex p-1 rounded-md items-center justify-center" href={`/categories/addsubcategory/${category._id}`}><Plus /> Add subcategory</Link>
                     </TableCell>
                     <TableCell>
                       <button

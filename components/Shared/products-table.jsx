@@ -87,10 +87,12 @@ export default function ProductsTable({
               <TableCell className="max-w-xs truncate">
                 {product.description}
               </TableCell>
-              <TableCell>${product.price}</TableCell>
+              <TableCell>
+                ${product.price == 0 ? product.defaultPrice : product.price}
+              </TableCell>
               <TableCell>{product.stock}</TableCell>
-              <TableCell>{product.karat}</TableCell>
-              <TableCell>{product.size}</TableCell>
+              <TableCell>{product.karat || "--"}</TableCell>
+              <TableCell>{product.size || "--"}</TableCell>
               <TableCell>{product.type}</TableCell>
               <TableCell>{product.rate}</TableCell>
               <TableCell>{product.category?.name}</TableCell>

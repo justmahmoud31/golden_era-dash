@@ -18,19 +18,24 @@ export default function AddProductPage() {
 
   const [formData, setFormData] = useState({
     name: "",
+    price: "",
     size: "",
     type: "Gold",
     category: "",
     subCategory: "",
     stock: "",
-    rate: "",
     karat: "",
     description: "",
     isFeatured: false,
+    hasName: false,
+    defaultPrice: "",
   });
 
   const [coverImages, setCoverImages] = useState([]);
   const [images, setImages] = useState([]);
+
+  const { data: categoryData } = useCategory();
+  const { data: subCategoryData } = useSubCategory(formData.category);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -39,8 +44,7 @@ export default function AddProductPage() {
       [name]: type === "checkbox" ? checked : value,
     });
   };
-const { data: categoryData, isLoading: loadingCategories } = useCategory();
-const { data: subCategoryData, isLoading: loadingSubCategories } = useSubCategory(formData.category);
+
   const handleFileChange = (e, isCover = false) => {
     const files = Array.from(e.target.files);
     if (isCover) setCoverImages(files);
@@ -55,7 +59,13 @@ const { data: subCategoryData, isLoading: loadingSubCategories } = useSubCategor
     const form = new FormData();
 
     Object.entries(formData).forEach(([key, value]) => {
-      form.append(key, value);
+      if ((key === "karat" || key === "size") && formData.type !== "Gold")
+        return;
+      if (key === "defaultPrice" && formData.type === "Gold") return;
+
+      if (value !== "") {
+        form.append(key, value);
+      }
     });
 
     coverImages.forEach((file) => form.append("cover_images", file));
@@ -83,39 +93,129 @@ const { data: subCategoryData, isLoading: loadingSubCategories } = useSubCategor
   };
 
   return (
-    <div className="max-w-4xl mx-auto mt-8 p-6 border rounded-lg shadow-md bg-[#eee]  space-y-6">
+    <div className="max-w-4xl mx-auto mt-8 p-6 border rounded-lg shadow-md bg-[#eee] space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Add New Product</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Text fields */}
-        {["name", "size", "stock", "rate", "karat"].map((field) => (
-          <div key={field}>
-            <Label htmlFor={field} className="capitalize">
-              {field}
-            </Label>
+        {/* name */}
+        <div>
+          <Label htmlFor="name">Name</Label>
+          <Input
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+
+  
+
+        {/* type */}
+        <div>
+          <Label htmlFor="type">Type</Label>
+          <select
+            id="type"
+            name="type"
+            value={formData.type}
+            onChange={handleInputChange}
+            className="w-full border rounded px-3 py-2"
+            required
+          >
+            {["Gold", "Silver", "other"].map((option) => (
+              <option key={option}>{option}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* karat (Gold only) */}
+        {/* karat (Gold only) */}
+        {formData.type === "Gold" && (
+          <div>
+            <Label htmlFor="karat">Karat</Label>
+            <select
+              id="karat"
+              name="karat"
+              value={formData.karat}
+              onChange={handleInputChange}
+              className="w-full border rounded px-3 py-2"
+              required
+            >
+              <option value="">Select Karat</option>
+              {[18, 21, 24].map((k) => (
+                <option key={k} value={k}>
+                  {k}k
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* size (Gold only) */}
+        {formData.type === "Gold" && (
+          <div>
+            <Label htmlFor="size">Size</Label>
             <Input
-              id={field}
-              name={field}
-              value={formData[field]}
+              id="size"
+              name="size"
+              value={formData.size}
               onChange={handleInputChange}
               required
             />
           </div>
-        ))}
-        {/* Category Dropdown */}
+        )}
+
+        {/* defaultPrice (Silver or other only) */}
+        {formData.type !== "Gold" && (
+          <div>
+            <Label htmlFor="defaultPrice">Default Price</Label>
+            <Input
+              id="defaultPrice"
+              name="defaultPrice"
+              value={formData.defaultPrice}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+        )}
+
+        {/* hasName checkbox */}
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="hasName"
+            name="hasName"
+            checked={formData.hasName}
+            onChange={handleInputChange}
+          />
+          <Label htmlFor="hasName">Has Name Engraving?</Label>
+        </div>
+
+        <div>
+          <Label htmlFor="stock">Stock</Label>
+          <Input
+            id="stock"
+            name="stock"
+            value={formData.stock}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+
+        {/* category */}
         <div>
           <Label htmlFor="category">Category</Label>
           <select
             id="category"
             name="category"
             value={formData.category}
-            onChange={(e) => {
+            onChange={(e) =>
               setFormData({
                 ...formData,
                 category: e.target.value,
                 subCategory: "",
-              });
-            }}
+              })
+            }
             className="w-full border rounded px-3 py-2"
             required
           >
@@ -128,7 +228,7 @@ const { data: subCategoryData, isLoading: loadingSubCategories } = useSubCategor
           </select>
         </div>
 
-        {/* SubCategory Dropdown */}
+        {/* subCategory */}
         {formData.category && (
           <div>
             <Label htmlFor="subCategory">SubCategory</Label>
@@ -150,7 +250,7 @@ const { data: subCategoryData, isLoading: loadingSubCategories } = useSubCategor
           </div>
         )}
 
-        {/* Description */}
+        {/* description */}
         <div>
           <Label htmlFor="description">Description</Label>
           <textarea
@@ -176,7 +276,7 @@ const { data: subCategoryData, isLoading: loadingSubCategories } = useSubCategor
           <Label htmlFor="isFeatured">Is Featured?</Label>
         </div>
 
-        {/* Cover Images Upload */}
+        {/* Cover Images */}
         <div>
           <Label>Cover Images</Label>
           <Input
@@ -199,7 +299,7 @@ const { data: subCategoryData, isLoading: loadingSubCategories } = useSubCategor
           </div>
         </div>
 
-        {/* Additional Images Upload */}
+        {/* Additional Images */}
         <div>
           <Label>Additional Images</Label>
           <Input
